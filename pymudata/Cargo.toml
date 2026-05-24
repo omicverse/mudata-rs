@@ -1,0 +1,26 @@
+[package]
+name = "pymudata"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "PyO3 bindings for mudata-rs — exposes MuData<H5> to Python as a drop-in for mudata.MuData"
+
+[lib]
+name = "pymudata"
+crate-type = ["lib"]
+
+[features]
+extension-module = ["pyo3/extension-module", "pyanndata/extension-module"]
+
+[dependencies]
+mudata = { workspace = true }
+anndata = { workspace = true }
+anndata-hdf5 = { workspace = true }
+pyanndata = { workspace = true }
+pyo3 = { workspace = true }
+anyhow = { workspace = true }
+indexmap = { workspace = true }
+log = { workspace = true }

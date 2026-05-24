@@ -1,0 +1,31 @@
+[workspace]
+members = ["mudata", "pymudata"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+authors = ["omicverse contributors"]
+license = "MIT"
+repository = "https://github.com/Starlitnightly/mudata-rs"
+description = "Rust implementation of MuData — multimodal AnnData container, mirrors the role of anndata-rs for h5mu"
+
+[workspace.dependencies]
+# Local crates
+mudata = { path = "mudata" }
+# anndata-rs (sibling checkout — single source of truth for h5ad I/O,
+# Backend trait, AnnData<B>, etc.)
+anndata = { path = "../anndata-rs/anndata" }
+anndata-hdf5 = { path = "../anndata-rs/anndata-hdf5" }
+pyanndata = { path = "../anndata-rs/pyanndata" }
+# hdf5 — same crate + features as anndata-rs uses, for ABI consistency
+hdf5 = { package = "hdf5-metno", version = "0.12.3", features = ["blosc", "blosc-zstd"] }
+hdf5-sys = { package = "hdf5-metno-sys", version = "0.11", features = ["static", "zlib", "threadsafe"] }
+# PyO3 — match anndataoom's pinned major
+pyo3 = { version = "0.27", features = ["multiple-pymethods"] }
+# Shared utility deps
+anyhow = "1"
+indexmap = "2"
+tempfile = "3"
+log = "0.4"

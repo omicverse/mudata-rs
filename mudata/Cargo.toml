@@ -1,0 +1,19 @@
+[package]
+name = "mudata"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core MuData<B> type — multimodal AnnData container, h5mu I/O"
+
+[dependencies]
+anndata = { workspace = true }
+anndata-hdf5 = { workspace = true }
+hdf5 = { workspace = true }
+hdf5-sys = { workspace = true }
+anyhow = { workspace = true }
+indexmap = { workspace = true }
+tempfile = { workspace = true }
+log = { workspace = true }
