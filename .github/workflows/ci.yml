@@ -9,7 +9,10 @@ on:
 env:
   CARGO_TERM_COLOR: always
   # static-linked HDF5 build needs cmake; ubuntu-latest ships it.
-  RUSTFLAGS: -D warnings
+  # `-D warnings` is intentionally NOT set here — we depend on
+  # upstream anndata-rs / pyanndata whose lint hygiene is out of our
+  # control. We still deny warnings *for our own crates* in the
+  # clippy job below.
 
 jobs:
   test:
