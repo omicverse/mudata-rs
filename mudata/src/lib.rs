@@ -19,7 +19,7 @@
 pub mod h5mu;
 pub mod mudata;
 
-pub use h5mu::{read_h5mu, write_h5mu, ThinH5muWorkspace};
+pub use h5mu::{ThinH5muWorkspace, read_h5mu, write_h5mu};
 pub use mudata::MuData;
 
 #[cfg(test)]

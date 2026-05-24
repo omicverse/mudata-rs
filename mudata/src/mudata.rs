@@ -47,10 +47,7 @@ impl<B: Backend> std::fmt::Debug for MuData<B> {
             .field("n_obs", &self.n_obs_cached)
             .field("n_vars", &self.n_vars_cached)
             .field("axis", &self.axis)
-            .field(
-                "mod",
-                &self.mods.keys().cloned().collect::<Vec<_>>(),
-            )
+            .field("mod", &self.mods.keys().cloned().collect::<Vec<_>>())
             .finish()
     }
 }

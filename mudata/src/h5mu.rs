@@ -22,7 +22,7 @@ use anndata::backend::{
     Backend, Compression, WriteConfig, get_default_write_config, set_default_write_config,
 };
 use anndata_hdf5::H5;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use hdf5::Location;
 use indexmap::IndexMap;
 use std::path::{Path, PathBuf};
@@ -84,13 +84,12 @@ impl ThinH5muWorkspace {
 /// The link targets are stored as relative paths from the thin file's
 /// directory so the pair can be moved as a unit. libhdf5 will follow
 /// them transparently as long as both files are reachable.
-pub fn materialise_thin_h5ad(
-    h5mu_path: &Path,
-    mod_name: &str,
-    thin_path: &Path,
-) -> Result<()> {
+pub fn materialise_thin_h5ad(h5mu_path: &Path, mod_name: &str, thin_path: &Path) -> Result<()> {
     let h5mu_path = h5mu_path.canonicalize().with_context(|| {
-        format!("could not canonicalise source h5mu path {}", h5mu_path.display())
+        format!(
+            "could not canonicalise source h5mu path {}",
+            h5mu_path.display()
+        )
     })?;
 
     // What entries actually exist under /mod/<name>/?  Open r/o briefly.
@@ -98,9 +97,9 @@ pub fn materialise_thin_h5ad(
         let src = hdf5::File::open(&h5mu_path)
             .with_context(|| format!("open {} for reading", h5mu_path.display()))?;
         let group_path = format!("mod/{mod_name}");
-        let g = src
-            .group(&group_path)
-            .with_context(|| format!("modality {mod_name:?} not found in {}", h5mu_path.display()))?;
+        let g = src.group(&group_path).with_context(|| {
+            format!("modality {mod_name:?} not found in {}", h5mu_path.display())
+        })?;
 
         let mut found = Vec::new();
         for k in ANNDATA_ROOT_KEYS {
@@ -166,9 +165,12 @@ pub fn read_h5mu<P: AsRef<Path>>(path: P) -> Result<(MuData<H5>, ThinH5muWorkspa
     {
         let src = hdf5::File::open(&h5mu_path)
             .with_context(|| format!("open {} for reading", h5mu_path.display()))?;
-        let mod_group = src
-            .group("mod")
-            .with_context(|| format!("{} has no /mod group — not a .h5mu file", h5mu_path.display()))?;
+        let mod_group = src.group("mod").with_context(|| {
+            format!(
+                "{} has no /mod group — not a .h5mu file",
+                h5mu_path.display()
+            )
+        })?;
 
         mod_order = read_mod_order(&mod_group)?;
         axis = src
@@ -284,7 +286,10 @@ fn write_h5mu_inner(dest: &Path, mdata: &MuData<H5>) -> Result<()> {
     if let Some(src_path) = mdata.source_path() {
         if src_path.exists() && src_path != dest {
             let src = hdf5::File::open(src_path).with_context(|| {
-                format!("re-open source {} for joint metadata copy", src_path.display())
+                format!(
+                    "re-open source {} for joint metadata copy",
+                    src_path.display()
+                )
             })?;
             for key in JOINT_ROOT_KEYS {
                 if src.link_exists(key) {
@@ -358,7 +363,9 @@ fn read_dataframe_index(file: &hdf5::File, name: &str) -> Result<Vec<String>> {
     if let Ok(arr) = ds.read_1d::<hdf5::types::VarLenAscii>() {
         return Ok(arr.into_iter().map(|s| s.to_string()).collect());
     }
-    Err(anyhow!("could not decode {name}/{index_col} as a string index"))
+    Err(anyhow!(
+        "could not decode {name}/{index_col} as a string index"
+    ))
 }
 
 fn ensure_anndata_root_attrs(loc: &hdf5::File) -> Result<()> {
@@ -480,11 +487,7 @@ fn hdf5_copy(
         )
     };
     if r < 0 {
-        return Err(anyhow!(
-            "H5Ocopy failed: {} -> {}",
-            src_path,
-            dst_name
-        ));
+        return Err(anyhow!("H5Ocopy failed: {} -> {}", src_path, dst_name));
     }
     Ok(())
 }
@@ -513,4 +516,3 @@ fn pathdiff(base: &Path, target: &Path) -> Option<PathBuf> {
     }
     Some(out)
 }
-
