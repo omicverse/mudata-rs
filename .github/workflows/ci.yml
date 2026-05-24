@@ -50,17 +50,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # `cargo fmt -p ...` still needs `cargo metadata` to resolve
+      # workspace members, which requires the sibling anndata-rs
+      # checkout (Cargo workspace path = "../anndata-rs/..." dep).
+      - name: Clone sibling anndata-rs
+        run: git clone --depth 1 https://github.com/Starlitnightly/anndata-rs.git ../anndata-rs
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
-      - run: cargo fmt --all -- --check
+      # Limit to OUR crates — upstream anndata-rs has its own fmt
+      # policy and we don't want to gate releases on their lint state.
+      - run: cargo fmt -p mudata -p pymudata -- --check
 
   clippy:
     name: cargo clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: git clone --depth 1 https://github.com/Starlitnightly/anndata-rs.git ../anndata-rs
+      - name: Clone sibling anndata-rs
+        run: git clone --depth 1 https://github.com/Starlitnightly/anndata-rs.git ../anndata-rs
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
