@@ -283,19 +283,20 @@ fn write_h5mu_inner(dest: &Path, mdata: &MuData<H5>) -> Result<()> {
     write_str_array_attr(loc_of_group(&mod_group), "mod-order", &names)?;
 
     // ---- 4) copy joint metadata from the source .h5mu (if any) ----
-    if let Some(src_path) = mdata.source_path() {
-        if src_path.exists() && src_path != dest {
-            let src = hdf5::File::open(src_path).with_context(|| {
-                format!(
-                    "re-open source {} for joint metadata copy",
-                    src_path.display()
-                )
-            })?;
-            for key in JOINT_ROOT_KEYS {
-                if src.link_exists(key) {
-                    hdf5_copy(&src, &format!("/{key}"), &dst.group("/")?, key)
-                        .with_context(|| format!("copy joint /{key}"))?;
-                }
+    if let Some(src_path) = mdata.source_path()
+        && src_path.exists()
+        && src_path != dest
+    {
+        let src = hdf5::File::open(src_path).with_context(|| {
+            format!(
+                "re-open source {} for joint metadata copy",
+                src_path.display()
+            )
+        })?;
+        for key in JOINT_ROOT_KEYS {
+            if src.link_exists(key) {
+                hdf5_copy(&src, &format!("/{key}"), &dst.group("/")?, key)
+                    .with_context(|| format!("copy joint /{key}"))?;
             }
         }
     }
@@ -384,7 +385,7 @@ fn clone_attr(src: &hdf5::Attribute, dst: &hdf5::File) -> Result<()> {
     // for AnnData root group markers.
     let name = src.name();
     if let Ok(v) = src.read_scalar::<hdf5::types::VarLenUnicode>() {
-        write_str_attr(loc_of_file(dst), &name, &v.to_string())?;
+        write_str_attr(loc_of_file(dst), &name, v.as_ref())?;
         return Ok(());
     }
     Ok(())
